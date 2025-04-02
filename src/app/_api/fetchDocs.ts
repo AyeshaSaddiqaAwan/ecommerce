@@ -37,7 +37,7 @@ export const fetchDocs = async <T>(
 
   if (draft) {
     const { cookies } = await import('next/headers')
-    token = cookies().get(payloadToken)
+    token = (await cookies()).get(payloadToken)
   }
 
   const docs: T[] = await fetch(`${GRAPHQL_API_URL}/api/graphql`, {

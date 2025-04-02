@@ -1,9 +1,10 @@
+/* eslint-disable prettier/prettier */
 import React from 'react'
 import { Metadata } from 'next'
 import { draftMode } from 'next/headers'
 import { notFound } from 'next/navigation'
 
-import { Product, Product as ProductType } from '../../../../payload/payload-types'
+import type { Product } from '../../../../payload/payload-types'
 import { fetchDoc } from '../../../_api/fetchDoc'
 import { fetchDocs } from '../../../_api/fetchDocs'
 import { Blocks } from '../../../_components/Blocks'
@@ -12,11 +13,10 @@ import { ProductHero } from '../../../_heros/Product'
 import { generateMeta } from '../../../_utilities/generateMeta'
 
 // Force this page to be dynamic so that Next.js does not cache it
-// See the note in '../../../[slug]/page.tsx' about this
 export const dynamic = 'force-dynamic'
 
 export default async function Product({ params: { slug } }) {
-  const { isEnabled: isDraftMode } = draftMode()
+  const { isEnabled: isDraftMode } = await draftMode()
 
   let product: Product | null = null
 
@@ -27,7 +27,7 @@ export default async function Product({ params: { slug } }) {
       draft: isDraftMode,
     })
   } catch (error) {
-    console.error(error) // eslint-disable-line no-console
+    console.error(error)
   }
 
   if (!product) {
@@ -67,15 +67,33 @@ export default async function Product({ params: { slug } }) {
 
 export async function generateStaticParams() {
   try {
-    const products = await fetchDocs<ProductType>('products')
-    return products?.map(({ slug }) => slug)
+    const products = await fetchDocs<Product>('products')
+
+    console.log('Fetched products:', products) // Debugging: Log fetched data
+
+    if (!Array.isArray(products)) {
+      console.error('Error: Expected an array, but received:', products)
+      return []
+    }
+
+    return products
+      .filter(product => {
+        if (typeof product !== 'object' || !product.slug) {
+          console.error('Invalid product format:', product) // Log unexpected data
+          return false
+        }
+        return true
+      })
+      .map(product => ({ slug: product.slug }))
   } catch (error) {
+    console.error('Error in generateStaticParams:', error)
     return []
   }
 }
 
+
 export async function generateMetadata({ params: { slug } }): Promise<Metadata> {
-  const { isEnabled: isDraftMode } = draftMode()
+  const { isEnabled: isDraftMode } = await draftMode()
 
   let product: Product | null = null
 
@@ -85,7 +103,7 @@ export async function generateMetadata({ params: { slug } }): Promise<Metadata> 
       slug,
       draft: isDraftMode,
     })
-  } catch (error) {}
+  } catch (error) { }
 
   return generateMeta({ doc: product })
 }

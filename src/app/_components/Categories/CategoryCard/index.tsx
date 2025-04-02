@@ -11,6 +11,10 @@ type CategoryCardProps = {
   category: Category
 }
 
+type Media = {
+  url: string
+}
+
 const CategoryCard = ({ category }: CategoryCardProps) => {
   const media = category.media as Media
   const { setCategoryFilters } = useFilter()
