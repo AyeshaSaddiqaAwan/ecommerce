@@ -23,12 +23,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <head>
         <InitTheme />
         <link rel="icon" href="/favicon.ico" sizes="32x32" />
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="icon" href="/favicon.png" type="image/svg+xml" />
       </head>
       <body className={jost.variable}>
         <Providers>
           <AdminBar />
-          {/* @ts-expect-error */}
           <Header />
           <main className="main">{children}</main>
           {/* @ts-expect-error */}
